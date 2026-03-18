@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 4 Study App - MARIE</title>
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#1e293b;
+      --panel:rgba(255,255,255,.10);
+      --panel2:rgba(255,255,255,.14);
+      --text:#eef2ff;
+      --muted:#cbd5e1;
+      --accent:#7c3aed;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --shadow:0 20px 40px rgba(0,0,0,.25);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:
+      radial-gradient(circle at top left, #312e81 0%, transparent 30%),
+      radial-gradient(circle at top right, #0ea5e9 0%, transparent 25%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));}
+    body{padding:18px}
+    .app{max-width:1100px;margin:0 auto}
+    .hero{
+      background:linear-gradient(135deg, rgba(124,58,237,.35), rgba(14,165,233,.22));
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:26px;
+      backdrop-filter: blur(12px);
+    }
+    .badge{display:inline-block;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);font-size:.85rem;color:var(--muted)}
+    h1{margin:14px 0 8px;font-size:clamp(2rem,5vw,3.4rem);line-height:1.02}
+    p.lead{color:var(--muted);font-size:1.02rem;max-width:760px}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+    button,.btn{
+      border:none;border-radius:16px;padding:12px 16px;font-weight:700;cursor:pointer;
+      background:white;color:#0f172a;box-shadow:var(--shadow);text-decoration:none;
+    }
+    .btn.secondary, button.secondary{background:rgba(255,255,255,.12);color:var(--text);border:1px solid rgba(255,255,255,.12);box-shadow:none}
+    .btn.ghost, button.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18);box-shadow:none}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+    .card{
+      grid-column: span 12;
+      background:var(--panel);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--radius);
+      padding:18px;
+      backdrop-filter: blur(10px);
+      box-shadow:var(--shadow);
+    }
+    @media (min-width:760px){
+      .card.span4{grid-column:span 4}
+      .card.span6{grid-column:span 6}
+      .card.span8{grid-column:span 8}
+    }
+    .card h2,.card h3{margin-top:0}
+    .muted{color:var(--muted)}
+    .tabs{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 8px}
+    .tab{
+      padding:12px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);color:var(--text);cursor:pointer;font-weight:700;
+    }
+    .tab.active{background:white;color:#111827}
+    .section{display:none}
+    .section.active{display:block}
+    ul{padding-left:18px}
+    li{margin:8px 0}
+    .flashcard{
+      min-height:240px;display:flex;align-items:center;justify-content:center;text-align:center;
+      padding:24px;border-radius:24px;background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.08));
+      border:1px solid rgba(255,255,255,.18);font-size:1.35rem;font-weight:800;
+    }
+    .flash-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .small{font-size:.92rem}
+    .quiz-q{font-size:1.12rem;font-weight:800;margin-bottom:14px}
+    .answers{display:grid;gap:10px}
+    .answer{
+      padding:14px;border-radius:16px;background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);cursor:pointer;font-weight:600
+    }
+    .answer.correct{outline:2px solid rgba(34,197,94,.9);background:rgba(34,197,94,.18)}
+    .answer.wrong{outline:2px solid rgba(239,68,68,.9);background:rgba(239,68,68,.16)}
+    .pill{display:inline-block;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.1);margin:5px 6px 0 0}
+    .footer{margin:18px 0 34px;color:var(--muted);font-size:.92rem;text-align:center}
+    .kpi{font-size:1.9rem;font-weight:900}
+    .toggleWrap{display:flex;align-items:center;gap:10px}
+    .note{
+      background:rgba(245,158,11,.16); border:1px solid rgba(245,158,11,.28);
+      color:#fde68a; padding:12px 14px; border-radius:16px;
+    }
+    .hidden{display:none}
+    .learn-list button{
+      width:100%;text-align:left;background:rgba(255,255,255,.08);color:var(--text);
+      border:1px solid rgba(255,255,255,.12);box-shadow:none;margin:8px 0
+    }
+    .learn-content{margin-top:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <div class="badge">Interactive Study App • Chapter 4</div>
+      <h1>MARIE & Computer Architecture</h1>
+      <p class="lead">
+        Learn the chapter in a clean, simple app with notes, flashcards, quizzes, and a quick-review page.
+        Built from your Chapter 4 PowerPoint notes.
+      </p>
+      <div class="toolbar">
+        <button onclick="showTab('learn')">Start Learning</button>
+        <button class="secondary" onclick="showTab('flashcards')">Flashcards</button>
+        <button class="secondary" onclick="showTab('quiz')">Quiz Mode</button>
+        <button class="ghost" onclick="showTab('review')">Quick Review</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card span8">
+        <div class="tabs">
+          <button class="tab active" id="tab-learn" onclick="showTab('learn')">Learn</button>
+          <button class="tab" id="tab-flashcards" onclick="showTab('flashcards')">Flashcards</button>
+          <button class="tab" id="tab-quiz" onclick="showTab('quiz')">Quiz</button>
+          <button class="tab" id="tab-review" onclick="showTab('review')">Review</button>
+        </div>
+
+        <div id="learn" class="section active">
+          <div class="toggleWrap">
+            <input type="checkbox" id="simpleToggle" onchange="renderLearn(currentTopic)" />
+            <label for="simpleToggle"><strong>Explain Simply</strong></label>
+          </div>
+          <p class="muted">Tap a topic, then read the summary.</p>
+          <div class="learn-list" id="learnList"></div>
+          <div class="learn-content" id="learnContent"></div>
+        </div>
+
+        <div id="flashcards" class="section">
+          <div class="flashcard" id="flashcard">Tap “Flip Card” to start.</div>
+          <div class="flash-actions">
+            <button onclick="prevCard()">← Prev</button>
+            <button onclick="flipCard()">Flip Card</button>
+            <button onclick="nextCard()">Next →</button>
+          </div>
+          <p class="muted small" id="flashMeta"></p>
+        </div>
+
+        <div id="quiz" class="section">
+          <div class="quiz-q" id="quizQuestion"></div>
+          <div class="answers" id="quizAnswers"></div>
+          <div class="flash-actions">
+            <button onclick="nextQuestion()">Next Question</button>
+            <button class="secondary" onclick="resetQuiz()">Reset Quiz</button>
+          </div>
+          <p class="muted small" id="quizMeta"></p>
+        </div>
+
+        <div id="review" class="section">
+          <h2>Quick Review</h2>
+          <div class="note">Most-tested ideas: CPU parts, fetch-decode-execute, MARIE registers, buses, memory, assemblers, and hardwired vs microprogrammed control.</div>
+          <p>
+            <span class="pill">CPU = datapath + control unit</span>
+            <span class="pill">ALU does arithmetic/logic</span>
+            <span class="pill">Registers are tiny fast storage</span>
+            <span class="pill">Bus moves data</span>
+            <span class="pill">Clock synchronizes operations</span>
+            <span class="pill">Fetch → Decode → Execute</span>
+            <span class="pill">Assembler: mnemonic → machine code</span>
+            <span class="pill">MARIE = simple teaching architecture</span>
+            <span class="pill">Hardwired = faster</span>
+            <span class="pill">Microprogrammed = more flexible</span>
+          </p>
+          <h3>Key MARIE Registers</h3>
+          <ul>
+            <li><strong>AC</strong> = Accumulator, holds data/results</li>
+            <li><strong>MAR</strong> = Memory Address Register, holds address</li>
+            <li><strong>MBR</strong> = Memory Buffer Register, holds memory data</li>
+            <li><strong>PC</strong> = Program Counter, next instruction address</li>
+            <li><strong>IR</strong> = Instruction Register, current instruction</li>
+            <li><strong>InREG / OutREG</strong> = input and output data</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card span4">
+        <h3>Progress</h3>
+        <div class="kpi" id="progressPct">0%</div>
+        <p class="muted">Topics viewed</p>
+        <div id="progressList" class="small"></div>
+      </div>
+
+      <div class="card span4">
+        <h3>Quiz Score</h3>
+        <div class="kpi" id="scoreBox">0 / 0</div>
+        <p class="muted">Correct answers so far</p>
+      </div>
+
+      <div class="card span4">
+        <h3>Study Tip</h3>
+        <p class="muted">Say each concept out loud in one sentence. If you can explain it simply, you know it.</p>
+      </div>
+
+      <div class="card span4">
+        <h3>Source</h3>
+        <p class="muted">Built from your PowerPoint notes on Chapter 4: MARIE, CPU basics, memory, buses, assemblers, and control units.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      Self-contained HTML app • save it and open in any browser
+    </div>
+  </div>
+
+  <script>
+    const topics = [
+      {
+        title:"CPU Basics",
+        normal:"The CPU fetches, decodes, and executes instructions. Its two main parts are the datapath and the control unit. The datapath includes the ALU and registers, while the control unit sends the signals that make operations happen in the right order.",
+        simple:"The CPU is the brain. It gets instructions, figures them out, and does them. One part moves data around. The other part tells everything when to go."
+      },
+      {
+        title:"Registers",
+        normal:"Registers are tiny, fast storage locations inside the CPU. They hold data the CPU needs right away. Examples include the program counter and instruction register.",
+        simple:"Registers are like tiny sticky notes inside the CPU. They hold important information for a moment so the CPU can use it fast."
+      },
+      {
+        title:"The Bus",
+        normal:"A bus is a group of wires that carries data, addresses, and control signals. Data lines carry values, address lines point to locations, and control lines tell when and how transfers happen.",
+        simple:"A bus is like a road system in the computer. Some roads carry data, some carry addresses, and some carry traffic rules."
+      },
+      {
+        title:"Clock",
+        normal:"The clock synchronizes operations across the computer. Clock frequency affects how quickly operations happen, but clock speed alone does not fully determine CPU performance.",
+        simple:"The clock is the computer’s beat. It keeps everything moving together, like counting steps in a dance."
+      },
+      {
+        title:"Memory Organization",
+        normal:"Memory is a linear array of addressable storage cells. It can be byte-addressable or word-addressable. Interleaving organizes memory into banks to improve access efficiency.",
+        simple:"Memory is a long row of numbered boxes. Each box has an address so the computer knows where to look."
+      },
+      {
+        title:"MARIE Architecture",
+        normal:"MARIE is a simple teaching architecture with 4K words of word-addressable memory, 16-bit words and instructions, a 16-bit ALU, and seven registers. It illustrates core computer architecture ideas.",
+        simple:"MARIE is a simple pretend computer made to help students understand how real computers work."
+      },
+      {
+        title:"Instruction Cycle",
+        normal:"The fetch-decode-execute cycle is how the CPU runs programs. First it fetches the instruction from memory, then decodes it, then executes it. Interrupts can temporarily change this flow.",
+        simple:"The computer follows three steps over and over: get the instruction, understand it, do it."
+      },
+      {
+        title:"Assemblers",
+        normal:"Assemblers translate human-readable mnemonic instructions into machine language. They often work in two passes: first building a symbol table, then resolving addresses and completing the object program.",
+        simple:"An assembler changes easy human code words into the 1s and 0s the computer understands."
+      },
+      {
+        title:"Addressing Modes",
+        normal:"Direct addressing states the operand address explicitly in the instruction. Indirect addressing uses an address that points to another address, similar to pointers in programming.",
+        simple:"Direct means 'go here.' Indirect means 'go here first, then use what you find to go to the real place.'"
+      },
+      {
+        title:"Control Units",
+        normal:"Hardwired control uses logic circuits to generate control signals, making it faster. Microprogrammed control stores control steps as microinstructions in firmware, making it easier to modify but slower.",
+        simple:"Hardwired control is fast but less flexible. Microprogrammed control is easier to change but takes more steps."
+      },
+      {
+        title:"Real Architectures",
+        normal:"The chapter compares Intel-style CISC architectures with MIPS-style RISC architectures. CISC tends to use more complex instructions, while RISC uses fewer, simpler instructions and often improves performance with load/store design.",
+        simple:"Some computers use bigger, more complicated instructions. Others use fewer, simpler ones. Both are ways to design a CPU."
+      }
+    ];
+
+    const flashcards = [
+      {front:"What are the two main parts of the CPU?", back:"The datapath and the control unit."},
+      {front:"What does the ALU do?", back:"It performs arithmetic and logic operations."},
+      {front:"What does the Program Counter (PC) hold?", back:"The address of the next instruction."},
+      {front:"What does the Instruction Register (IR) hold?", back:"The current instruction being executed."},
+      {front:"What are the three basic steps of instruction processing?", back:"Fetch, decode, execute."},
+      {front:"What does an assembler do?", back:"It translates assembly mnemonics into machine code."},
+      {front:"What is the difference between direct and indirect addressing?", back:"Direct gives the operand address directly; indirect points to a location containing the real address."},
+      {front:"Which control unit type is faster?", back:"Hardwired control is faster."},
+      {front:"Which control unit type is easier to modify?", back:"Microprogrammed control is easier to modify."},
+      {front:"What is MARIE?", back:"A simple educational architecture used to explain core computer system concepts."}
+    ];
+
+    const quiz = [
+      {
+        q:"What are the two principal parts of the CPU?",
+        options:["Memory and disk","Datapath and control unit","ALU and hard drive","Cache and monitor"],
+        answer:1
+      },
+      {
+        q:"What does the ALU do?",
+        options:["Stores files","Controls the keyboard","Performs arithmetic and logic","Fetches from the internet"],
+        answer:2
+      },
+      {
+        q:"Which register holds the address of the next instruction?",
+        options:["AC","MBR","PC","IR"],
+        answer:2
+      },
+      {
+        q:"What is the correct order of the instruction cycle?",
+        options:["Execute, fetch, decode","Fetch, decode, execute","Decode, execute, fetch","Fetch, execute, decode"],
+        answer:1
+      },
+      {
+        q:"Which is true about hardwired control?",
+        options:["It is slower but more flexible","It is faster and implemented with logic circuits","It only exists in MARIE","It is the same as an assembler"],
+        answer:1
+      },
+      {
+        q:"What does an assembler produce from mnemonic source code?",
+        options:["A microchip","An object program / machine code","A keyboard layout","A clock pulse"],
+        answer:1
+      }
+    ];
+
+    let currentTopic = 0;
+    let learned = new Set();
+    let cardIndex = 0;
+    let cardFlipped = false;
+    let qIndex = 0;
+    let score = 0;
+    let answered = 0;
+
+    function showTab(name){
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      document.getElementById(name).classList.add('active');
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.getElementById('tab-'+name).classList.add('active');
+      if(name==='flashcards') renderCard();
+      if(name==='quiz') renderQuestion();
+      if(name==='learn') renderLearn(currentTopic);
+    }
+
+    function renderLearnList(){
+      const box = document.getElementById('learnList');
+      box.innerHTML = topics.map((t,i)=>
+        `<button onclick="renderLearn(${i})">${i+1}. ${t.title}</button>`
+      ).join('');
+    }
+
+    function renderLearn(i){
+      currentTopic = i;
+      const simple = document.getElementById('simpleToggle').checked;
+      const t = topics[i];
+      learned.add(i);
+      document.getElementById('learnContent').innerHTML = `
+        <h3>${t.title}</h3>
+        <p>${simple ? t.simple : t.normal}</p>
+      `;
+      renderProgress();
+    }
+
+    function renderProgress(){
+      const pct = Math.round((learned.size / topics.length) * 100);
+      document.getElementById('progressPct').textContent = pct + '%';
+      document.getElementById('progressList').innerHTML =
+        topics.map((t,i)=> `${learned.has(i) ? '✅' : '⬜️'} ${t.title}`).join('<br>');
+    }
+
+    function renderCard(){
+      const c = flashcards[cardIndex];
+      document.getElementById('flashcard').textContent = cardFlipped ? c.back : c.front;
+      document.getElementById('flashMeta').textContent = `Card ${cardIndex+1} of ${flashcards.length} • ${cardFlipped ? 'Answer side' : 'Question side'}`;
+    }
+    function flipCard(){ cardFlipped = !cardFlipped; renderCard(); }
+    function nextCard(){ cardIndex = (cardIndex + 1) % flashcards.length; cardFlipped = false; renderCard(); }
+    function prevCard(){ cardIndex = (cardIndex - 1 + flashcards.length) % flashcards.length; cardFlipped = false; renderCard(); }
+
+    function renderQuestion(){
+      const item = quiz[qIndex];
+      document.getElementById('quizQuestion').textContent = item.q;
+      const box = document.getElementById('quizAnswers');
+      box.innerHTML = '';
+      item.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'answer';
+        div.textContent = opt;
+        div.onclick = () => chooseAnswer(idx, div);
+        box.appendChild(div);
+      });
+      document.getElementById('quizMeta').textContent = `Question ${qIndex+1} of ${quiz.length}`;
+      document.getElementById('scoreBox').textContent = `${score} / ${answered}`;
+    }
+
+    function chooseAnswer(idx, el){
+      const item = quiz[qIndex];
+      const options = document.querySelectorAll('.answer');
+      options.forEach(o => o.onclick = null);
+      options[item.answer].classList.add('correct');
+      if(idx !== item.answer){
+        el.classList.add('wrong');
+      } else {
+        score += 1;
+      }
+      answered += 1;
+      document.getElementById('scoreBox').textContent = `${score} / ${answered}`;
+    }
+
+    function nextQuestion(){
+      qIndex = (qIndex + 1) % quiz.length;
+      renderQuestion();
+    }
+
+    function resetQuiz(){
+      qIndex = 0; score = 0; answered = 0; renderQuestion();
+    }
+
+    renderLearnList();
+    renderLearn(0);
+    renderCard();
+    renderQuestion();
+  </script>
+</body>
+</html>
